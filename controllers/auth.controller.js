@@ -21,8 +21,34 @@ export const register = async (req, res) => {
     res.status(201).json({ message: "User created successfully" });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Failed to create user" });
+    res.status(500).json({ message: "Failed to create user!" });
   }
 };
-export const login = (req, res) => {};
+export const login = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Check if the user exists
+
+    const user = await prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid Credentials!" });
+    }
+
+    // Check if the password is correct
+    const isPasswordValid = await bycrpt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid Credentials!" });
+    }
+
+    // Generate Cookie Token and send it to the user
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to login!" });
+  }
+};
 export const logout = (req, res) => {};
